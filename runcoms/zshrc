@@ -169,41 +169,33 @@ bindkey '^[[F' end-of-line
 # Deleteキーで削除
 bindkey '^[[3~' delete-char
 
-# ===== 言語環境の遅延ロード =====
-# 各言語環境を必要なときだけ初期化する関数を定義
+# ===== 言語環境の初期化 =====
+# 各言語環境をシェル起動時に初期化
 
-# phpenv - 遅延ロード
+# phpenv - 初期化
 export PHPENV_ROOT="$HOME/.phpenv"
-function phpenv() {
-  unfunction phpenv
+if command -v phpenv > /dev/null 2>&1; then
   eval "$(phpenv init -)"
-  phpenv "$@"
-}
+fi
 
-# nodenv - 遅延ロード
-function nodenv() {
-  unfunction nodenv
+# nodenv - 初期化
+if command -v nodenv > /dev/null 2>&1; then
   eval "$(nodenv init -)"
-  nodenv "$@"
-}
+fi
 
-# rbenv - 遅延ロード
-function rbenv() {
-  unfunction rbenv
+# rbenv - 初期化
+if command -v rbenv > /dev/null 2>&1; then
   eval "$(rbenv init - zsh)"
-  rbenv "$@"
-}
+fi
 
-# pyenv - 遅延ロード
-function pyenv() {
-  unfunction pyenv
+# pyenv - 初期化
+if command -v pyenv > /dev/null 2>&1; then
   eval "$(pyenv init -)"
-  # virtualenv-initも遅延ロード
-  if type pyenv-virtualenv-init > /dev/null 2>&1; then
+  # virtualenv-init
+  if command -v pyenv-virtualenv-init > /dev/null 2>&1; then
     eval "$(pyenv virtualenv-init -)"
   fi
-  pyenv "$@"
-}
+fi
 
 # ===== 補助ツール設定 =====
 # GitHub Copilot - 遅延ロード
