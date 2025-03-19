@@ -49,6 +49,37 @@ alias reload="exec $SHELL -l"
 # 安全なrm（確認あり）
 alias rm="rm -i"
 
+# 便利なエイリアス
+alias l='ls -lah'
+alias la='ls -lAh'
+alias ll='ls -lh'
+alias ls='ls -G'
+alias lsa='ls -lah'
+
+# ディレクトリ移動
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+
+# Git関連
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git pull'
+alias gd='git diff'
+alias gco='git checkout'
+alias gb='git branch'
+alias glog='git log --oneline --decorate --graph'
+
+# グローバルエイリアス（パイプやリダイレクトと組み合わせて使用）
+alias -g G='| grep'
+alias -g L='| less'
+alias -g H='| head'
+alias -g T='| tail'
+alias -g C='| wc -l'
+
 # ===== ヒストリ関連設定 =====
 # 同じコマンドは古いものを削除
 setopt hist_ignore_all_dups
@@ -64,6 +95,42 @@ setopt hist_save_no_dups
 setopt hist_no_store
 # 補完時にヒストリを自動的に展開
 setopt hist_expand
+# ヒストリサイズを増やす
+export HISTSIZE=10000
+export SAVEHIST=10000
+
+# ===== ディレクトリスタック設定 =====
+# cd時にディレクトリスタックにpushdする
+setopt auto_pushd
+# pushdで重複するディレクトリは追加しない
+setopt pushd_ignore_dups
+# pushdの+/-の意味を反転させる
+setopt pushd_minus
+# pushdを省略してディレクトリ名だけでスタック操作
+setopt auto_cd
+# ディレクトリ名の補完で末尾のスラッシュを自動的に付加
+setopt auto_param_slash
+# スラッシュが補完された後、自動的に次の補完を行う
+setopt auto_param_keys
+
+# ===== 補完関連設定 =====
+# 補完候補を詰めて表示
+setopt list_packed
+# 補完候補一覧でファイルの種別を識別マーク表示
+setopt list_types
+# 補完候補を一覧表示したとき、Tabや矢印で選択できるようにする
+zstyle ':completion:*:default' menu select=1
+# 補完で大文字小文字を区別しない
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+# 補完候補に色を付ける
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+# キャッシュを使用して補完を高速化
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$HOME/.zsh/cache"
+# 詳細な補完メッセージを表示
+zstyle ':completion:*' verbose yes
+# 補完方法の設定：指定した順番に実行する
+zstyle ':completion:*' completer _expand _complete _match _prefix _approximate _list _history
 
 # ===== 各種ツール設定 =====
 # Google Cloud SDK - 遅延ロード
@@ -89,6 +156,18 @@ source /opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-se
 # 上下キーでヒストリ検索
 bindkey '^[[A' history-substring-search-up
 bindkey '^[[B' history-substring-search-down
+
+# ===== キーバインディング設定 =====
+# Ctrl+Rでヒストリ検索
+bindkey '^R' history-incremental-search-backward
+# Ctrl+Sでヒストリ検索（前方）
+bindkey '^S' history-incremental-search-forward
+# Homeキーで行頭へ
+bindkey '^[[H' beginning-of-line
+# Endキーで行末へ
+bindkey '^[[F' end-of-line
+# Deleteキーで削除
+bindkey '^[[3~' delete-char
 
 # ===== 言語環境の遅延ロード =====
 # 各言語環境を必要なときだけ初期化する関数を定義
@@ -155,6 +234,34 @@ function conda() {
 # ===== パフォーマンス最適化 =====
 # コマンド実行時間の計測（遅いコマンドを特定するのに役立つ）
 REPORTTIME=5
+
+# ===== fzfの設定（インストールされている場合） =====
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# fzfがインストールされていれば、Ctrl+Tでファイル検索、Ctrl+Rでヒストリ検索を強化
+if type fzf > /dev/null 2>&1; then
+  # Ctrl+Tでファイル検索
+  export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
+  export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
+  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+  # Ctrl+Rでヒストリ検索を強化
+  export FZF_CTRL_R_OPTS="--sort --exact"
+fi
+
+# ===== その他の便利な設定 =====
+# コマンド訂正
+setopt correct
+# ビープ音を鳴らさない
+setopt no_beep
+# バックグラウンドジョブの状態変化を即時通知
+setopt notify
+# 終了ステータスが0以外の場合にステータスを表示
+setopt print_exit_value
+# '#'以降をコメントとして扱う
+setopt interactive_comments
+# 日本語ファイル名を表示可能にする
+setopt print_eight_bit
 
 # Amazon Q post block. Keep at the bottom of this file.
 [[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh"
