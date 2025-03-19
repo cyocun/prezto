@@ -1,3 +1,16 @@
+# Amazon Q pre block. Keep at the top of this file.
+[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh"
+# Q pre block. Keep at the top of this file.
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+[[ "$TERM_PROGRAM" == "vscode" ]] && . "$(cursor --locate-shell-integration-path zsh)"
+
+
 #
 # Executes commands at the start of an interactive session.
 #
@@ -5,9 +18,118 @@
 #   Sorin Ionescu <sorin.ionescu@gmail.com>
 #
 
+export LANG=ja_JP.UTF-8
+export LC_ALL=ja_JP.UTF-8
+export LC_CTYPE=ja_JP.UTF-8
+
+ZSH_THEME="agnoster"
+
+
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
 # Customize to your needs...
+
+# export PATH=$HOME/.nodebrew/current/bin:$PATH
+export PATH="$HOME/.nodenv/bin:$PATH"
+export PATH=$HOME/.rbenv/bin:$PATH
+export PATH=$PATH:/Users/cyocun/flex_sdk_4.6/bin
+export PATH=$PATH:/Users/cyocun/apachehere/bin
+export PATH=$PATH:/Users/cyocun/Library/Android/sdk/platform-tools
+
+alias ws='open -a "WebStorm.app"'
+alias chrome="/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome"
+alias wsdev="ws ./ && yarn dev"
+alias vsdev="vscode ./ && yarn dev"
+alias devNpm="vscode ./ && npm run dev"
+alias dev="yarn dev"
+alias build="yarn build"
+alias buildNpm="npm run build"
+alias tower="gittower ./"
+alias reload="exec $SHELL -l"
+
+# ヒストリに追加されるコマンド行が古いものと同じなら古いものを削除
+setopt hist_ignore_all_dups
+
+# スペースで始まるコマンド行はヒストリリストから削除
+setopt hist_ignore_space
+
+# ヒストリを呼び出してから実行する間に一旦編集可能
+setopt hist_verify
+
+# 余分な空白は詰めて記録
+setopt hist_reduce_blanks
+
+# 古いコマンドと同じものは無視
+setopt hist_save_no_dups
+
+# historyコマンドは履歴に登録しない
+setopt hist_no_store
+
+# 補完時にヒストリを自動的に展開
+setopt hist_expand
+
+# rmするときにconfirmするよう
+alias rm="rm -i"
+
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/cyocun/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/cyocun/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/cyocun/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/cyocun/google-cloud-sdk/completion.zsh.inc'; fi
+
+source ~/powerlevel10k/powerlevel10k.zsh-theme
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+source /opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh
+
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+
+
+
+export PATH="/usr/local/opt/tcl-tk/bin:$PATH"
+
+PATH=$(pyenv root)/shims:$PATH
+
+
+# phpenv
+# https://qiita.com/yuki777/items/c8e33ca3290b55862c6a
+export PHPENV_ROOT="$HOME/.phpenv"
+if [ -d "${PHPENV_ROOT}" ]; then
+  export PATH="${PHPENV_ROOT}/bin:${PATH}"
+  eval "$(phpenv init -)"
+fi
+
+
+eval "$(nodenv init -)"
+eval "$(rbenv init - zsh)"
+# eval "$(github-copilot-cli alias -- "$0")"
+
+
+[[ -f "$HOME/fig-export/dotfiles/dotfile.zsh" ]] && builtin source "$HOME/fig-export/dotfiles/dotfile.zsh"
+
+eval "$(gh copilot alias -- zsh)"
+
+# Q post block. Keep at the bottom of this file.
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/Users/cyocun/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/Users/cyocun/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/Users/cyocun/miniconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/Users/cyocun/miniconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
+# Amazon Q post block. Keep at the bottom of this file.
+[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh"
