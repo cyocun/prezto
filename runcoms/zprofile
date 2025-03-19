@@ -92,10 +92,11 @@ export PKG_CONFIG_PATH="/usr/local/opt/tcl-tk/lib/pkgconfig"
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
+# pyenvのPATHのみ設定し、初期化は遅延ロードに変更（zshrcで定義）
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+# eval "$(pyenv init -)" # 遅延ロードに変更
+# eval "$(pyenv virtualenv-init -)" # 遅延ロードに変更
 
 # Q post block. Keep at the bottom of this file.
 [[ -f "${HOME}/Library/Application Support/amazon-q/shell/zprofile.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zprofile.post.zsh"

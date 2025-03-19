@@ -1,135 +1,160 @@
 # Amazon Q pre block. Keep at the top of this file.
 [[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh"
 # Q pre block. Keep at the top of this file.
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
+
+# ===== Powerlevel10k 即時プロンプト設定 =====
+# 速度向上のため、コンソール入力を必要とするコードはこのブロックの前に配置する必要があります
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# VSCode用のシェル統合
 [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(cursor --locate-shell-integration-path zsh)"
 
-
-#
-# Executes commands at the start of an interactive session.
-#
-# Authors:
-#   Sorin Ionescu <sorin.ionescu@gmail.com>
-#
-
+# ===== 言語環境設定 =====
 export LANG=ja_JP.UTF-8
 export LC_ALL=ja_JP.UTF-8
 export LC_CTYPE=ja_JP.UTF-8
 
-ZSH_THEME="agnoster"
-
-
-# Source Prezto.
+# ===== Prezto設定 =====
+# Preztoの読み込み
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
-# Customize to your needs...
+# ===== PATHの設定 =====
+# 開発環境のPATH設定を一箇所にまとめる
+typeset -U path  # 重複を排除
+path=(
+  "$HOME/.nodenv/bin"
+  "$HOME/.rbenv/bin"
+  "$HOME/.phpenv/bin"
+  "$HOME/flex_sdk_4.6/bin"
+  "$HOME/apachehere/bin"
+  "$HOME/Library/Android/sdk/platform-tools"
+  "/usr/local/opt/tcl-tk/bin"
+  $path
+)
 
-# export PATH=$HOME/.nodebrew/current/bin:$PATH
-export PATH="$HOME/.nodenv/bin:$PATH"
-export PATH=$HOME/.rbenv/bin:$PATH
-export PATH=$PATH:/Users/cyocun/flex_sdk_4.6/bin
-export PATH=$PATH:/Users/cyocun/apachehere/bin
-export PATH=$PATH:/Users/cyocun/Library/Android/sdk/platform-tools
-
+# ===== エイリアス設定 =====
+# アプリケーション起動
 alias ws='open -a "WebStorm.app"'
 alias chrome="/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome"
-alias wsdev="ws ./ && yarn dev"
-alias vsdev="vscode ./ && yarn dev"
-alias devNpm="vscode ./ && npm run dev"
-alias dev="yarn dev"
-alias build="yarn build"
-alias buildNpm="npm run build"
 alias tower="gittower ./"
+
+# 開発関連のショートカット
+
+# シェル関連
 alias reload="exec $SHELL -l"
+# 安全なrm（確認あり）
+alias rm="rm -i"
 
-# ヒストリに追加されるコマンド行が古いものと同じなら古いものを削除
+# ===== ヒストリ関連設定 =====
+# 同じコマンドは古いものを削除
 setopt hist_ignore_all_dups
-
-# スペースで始まるコマンド行はヒストリリストから削除
+# スペースで始まるコマンドはヒストリに追加しない
 setopt hist_ignore_space
-
-# ヒストリを呼び出してから実行する間に一旦編集可能
+# 実行前に一旦編集可能にする
 setopt hist_verify
-
 # 余分な空白は詰めて記録
 setopt hist_reduce_blanks
-
 # 古いコマンドと同じものは無視
 setopt hist_save_no_dups
-
 # historyコマンドは履歴に登録しない
 setopt hist_no_store
-
 # 補完時にヒストリを自動的に展開
 setopt hist_expand
 
-# rmするときにconfirmするよう
-alias rm="rm -i"
+# ===== 各種ツール設定 =====
+# Google Cloud SDK - 遅延ロード
+function gcloud() {
+  # 初回実行時のみ初期化
+  if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then
+    source "$HOME/google-cloud-sdk/path.zsh.inc"
+  fi
+  if [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]; then
+    source "$HOME/google-cloud-sdk/completion.zsh.inc"
+  fi
+  unfunction gcloud
+  gcloud "$@"
+}
 
-
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/cyocun/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/cyocun/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/cyocun/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/cyocun/google-cloud-sdk/completion.zsh.inc'; fi
-
+# Powerlevel10k
 source ~/powerlevel10k/powerlevel10k.zsh-theme
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+# p10k設定ファイルの読み込み
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-source /opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh
 
+# zsh-history-substring-search
+source /opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh
+# 上下キーでヒストリ検索
 bindkey '^[[A' history-substring-search-up
 bindkey '^[[B' history-substring-search-down
 
+# ===== 言語環境の遅延ロード =====
+# 各言語環境を必要なときだけ初期化する関数を定義
 
-
-export PATH="/usr/local/opt/tcl-tk/bin:$PATH"
-
-PATH=$(pyenv root)/shims:$PATH
-
-
-# phpenv
-# https://qiita.com/yuki777/items/c8e33ca3290b55862c6a
+# phpenv - 遅延ロード
 export PHPENV_ROOT="$HOME/.phpenv"
-if [ -d "${PHPENV_ROOT}" ]; then
-  export PATH="${PHPENV_ROOT}/bin:${PATH}"
+function phpenv() {
+  unfunction phpenv
   eval "$(phpenv init -)"
-fi
+  phpenv "$@"
+}
 
+# nodenv - 遅延ロード
+function nodenv() {
+  unfunction nodenv
+  eval "$(nodenv init -)"
+  nodenv "$@"
+}
 
-eval "$(nodenv init -)"
-eval "$(rbenv init - zsh)"
-# eval "$(github-copilot-cli alias -- "$0")"
+# rbenv - 遅延ロード
+function rbenv() {
+  unfunction rbenv
+  eval "$(rbenv init - zsh)"
+  rbenv "$@"
+}
 
+# pyenv - 遅延ロード
+function pyenv() {
+  unfunction pyenv
+  eval "$(pyenv init -)"
+  # virtualenv-initも遅延ロード
+  if type pyenv-virtualenv-init > /dev/null 2>&1; then
+    eval "$(pyenv virtualenv-init -)"
+  fi
+  pyenv "$@"
+}
 
-[[ -f "$HOME/fig-export/dotfiles/dotfile.zsh" ]] && builtin source "$HOME/fig-export/dotfiles/dotfile.zsh"
+# ===== 補助ツール設定 =====
+# GitHub Copilot - 遅延ロード
+function gh() {
+  unfunction gh
+  eval "$(gh copilot alias -- zsh)"
+  gh "$@"
+}
 
-eval "$(gh copilot alias -- zsh)"
+# ===== conda - 遅延ロード =====
+function conda() {
+  unfunction conda
+  # conda初期化
+  __conda_setup="$('/Users/cyocun/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+  if [ $? -eq 0 ]; then
+      eval "$__conda_setup"
+  else
+      if [ -f "/Users/cyocun/miniconda3/etc/profile.d/conda.sh" ]; then
+          . "/Users/cyocun/miniconda3/etc/profile.d/conda.sh"
+      else
+          export PATH="/Users/cyocun/miniconda3/bin:$PATH"
+      fi
+  fi
+  unset __conda_setup
+  conda "$@"
+}
 
-# Q post block. Keep at the bottom of this file.
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/Users/cyocun/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/Users/cyocun/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/Users/cyocun/miniconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/Users/cyocun/miniconda3/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
+# ===== パフォーマンス最適化 =====
+# コマンド実行時間の計測（遅いコマンドを特定するのに役立つ）
+REPORTTIME=5
 
 # Amazon Q post block. Keep at the bottom of this file.
 [[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh"
